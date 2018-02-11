@@ -1,0 +1,119 @@
+2018/1/25: Debug done (Hoping no bug in debug)
+- Add debug.cpp, provide two macro ASSERT and ASSERT_NOT_REACHED as assertion interface.
+
+
+2018/1/25: Change log added
+- It seems that to keep a change log is good, so I add it.
+
+2018/1/25: Spef done, func added, fix file_reader, merge ok, write change log
+- spef test: input net names and check the result by using TEST_SPEF
+- Func: string_to_float, `func.h` is included by header.h, so just include `header.h`
+- file_reader: add ascii 10 and 13 to unusefull set for windows
+
+2018/1/26: Verilog parser done
+- Create an unit_test folder to put those file for unit tests
+- Verilog parser is done, including unit test, makefile.
+- Some small changes in log format. Now you can pass a additional bool to not printing date.
+- A todo list is created.
+- Add a rm-based clean command to makefile.
+
+2018/1/26: Create liberty
+- Create many work opportunities
+- add simple testcase
+
+2018/1/27: Expectation debug structure
+- Add a EXPECT macro
+- EXPECT(A,B) will trigger assertion fail if A != B, and print error message, nothing happen if A == B.
+
+2018/1/27: Some liberty stuff
+- Add EXPECT_NOT for expectation of not equal.
+- Add #define DEBUG_MODE_ON, undefine this will completely turn off debug system, without losing any efficiency.
+
+2018/1/27: fix file_reader , liberty parser
+- add isprint() to is_useful function, and ASSERT_NOT_REACHED() to next_token
+- Liberty parser
+
+2018/1/27: merge two liberty stuffs, add timing type(setup_rising, hold_rising), timing table(fall/rise_constraint)
+- check cell lib: use TEST_CELLLIB
+- Liberty parser done
+
+2018/1/31: add get function to liberty files
+- modify all 'string' in parameter to 'const string&'
+- modify data structure of SpefNet's pin_res
+- add get function of liberty and spef
+
+2018/2/1: Some util func
+- Optimize string_to_float
+- Add an util function of verilog, now you can get cell_type by cell_name
+
+2018/2/2: rc tree done
+- rc tree done
+- show log message(#error, #warning )
+
+2018/2/3: liberty delay done
+- add liberty.h
+- add get_delay/slew/constraint to timing_arc.cpp
+- add get_value to timing_table.cpp
+
+2018/2/4: Building graph building function
+- An graph now can be constructed by .v and .lib files. (without any info.)
+
+2018/2/4: modify test_main
+- change cell, timing_table debug message
+- add get_downstream to rc_tree
+- modify test_main for querying testcase
+
+2018/2/5: rctree early, late mode
+- add early, late mode to rc_tree
+
+2018/2/5: modify timing_arc timing query
+- add some functions to avoid invalid timing query
+- can add pin cap to rc_tree for `load` in timing file
+
+1018/2/5: graph construction complete
+- Just as the title
+
+2018/2/6: modify graph's build rc_tree
+- build rc_tree after new a rctree
+
+2018/2/6: Graph interface
+- Add function to set at/rat of primary in/out
+- Add in_graph checking
+
+2018/2/7: timer object
+- add timer object
+- Add some functino in .ops file to Graph
+
+2018/2/7: Dynamic programming fiesta
+- Add mode-dependent comparison between at/rat (func.cpp)
+- Calculate at/slew function in graph.
+- Fix duplicate RCTree.
+
+2018/2/7: test simple
+- use `make main` to test simple, then check simple/myoutput
+
+2018/2/8: fix bugs in dfs at/slew
+- add_edge: rev_adj
+- add_node: rev_adj
+- build: add tree->cal() here, but it should be called after read .timing( after `load` )
+- modify iterator Transition_Type in for loop(at_dfs, at_update)
+
+2018/2/9: set_load function at graph
+- add outpu_load in graph
+- at/slew is ok in simple testcase
+- modify Transition_Type order in enum.h
+
+2018/2/8:
+- What? previous commit at 2/9!? It is 2/8 10:19 right now!?
+- Logger now flush its stream after called
+- Rat calculation (Bug nest version)
+- Add a lot of really useless comment to decorate the code.
+
+2018/2/9: remove root of rc_tree pin capacitance from liberty, pass c17 at/rat/slew/slack
+- add testcase to ignore
+
+2018/2/10: add report_timing
+
+2018/2/9: Simple AC and is_clock checking
+- Pass simple testcase
+- Node now store whether it is clock
