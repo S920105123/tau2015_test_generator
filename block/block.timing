@@ -1,0 +1,14 @@
+clock clk 50 50
+at clk 0 25 0 25
+at in1 0 0 5 5
+at in2 0 0 1 1
+at in3 0 0 1 1
+slew in1 10 15 20 25
+slew in2 30 30 40 40
+slew in3 30 30 40 40
+slew clk 10 15 10 15
+load out1 4
+load out2 5
+load clkout 10
+rat out1 10 10 20 20
+rat out2 10 10 20 20
