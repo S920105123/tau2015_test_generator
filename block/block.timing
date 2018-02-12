@@ -7,8 +7,8 @@ slew in1 10 15 20 25
 slew in2 30 30 40 40
 slew in3 30 30 40 40
 slew clk 10 15 10 15
-load out1 4
-load out2 5
-load clkout 10
+load out1 40000
+load out2 50000
+load clkout 1000
 rat out1 10 10 20 20
 rat out2 10 10 20 20

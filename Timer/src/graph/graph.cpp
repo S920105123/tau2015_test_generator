@@ -281,10 +281,13 @@ Graph::Wire_mapping::Wire_mapping() {
 	this->src=-1;
 }
 
-Graph::Wire_mapping* Graph::get_wire_mapping(const string &wire_name) const {
+Graph::Wire_mapping* Graph::get_wire_mapping(const string &wire_name) {
 	auto it = this->wire_mapping.find(wire_name);
-	cout << wire_name<<endl;
-	if (it == wire_mapping.end()) return NULL;
+	if (it == wire_mapping.end()) {
+		auto mp = new Wire_mapping;
+		this->wire_mapping.emplace(wire_name, mp);
+		return mp;
+	}
 	return it->second;
 }
 
@@ -641,8 +644,8 @@ void Graph::init_rat_from_constraint() {
 				Mode mode = cons.mode;
 				if (!cons.arc->is_transition_defined(type_clk, type_data)) continue; // This also checks what clock edge to be used
 
-				float delay = cons.arc->get_constraint(type_clk, type_data, clk.slew[mode][type_clk], data_pin.slew[mode][type_data]);
 				if (mode == EARLY) {
+					float delay = cons.arc->get_constraint(type_clk, type_data, clk.slew[EARLY][type_clk], data_pin.slew[EARLY][type_data]);
 					// Hold test
 					float &data_rat = data_pin.rat[EARLY][type_data];
 					float &clk_rat = clk.rat[LATE][type_clk];
@@ -652,6 +655,7 @@ void Graph::init_rat_from_constraint() {
 					rat_relax(clk_rat, new_clk_rat, LATE);
 				} else {
 					// Setup test
+					float delay = cons.arc->get_constraint(type_clk, type_data, clk.slew[LATE][type_clk], data_pin.slew[LATE][type_data]);
 					float &data_rat = data_pin.rat[LATE][type_data];
 					float &clk_rat = clk.rat[EARLY][type_clk];
 					float new_data_rat = this->clock_T + clk.at[EARLY][type_clk] - delay;
@@ -749,7 +753,7 @@ int main(int argc, char *argv[]) {
 	CellLib early_lib(EARLY), late_lib(LATE);
 	Spef spef;
 	Graph G;
-
+	
 	string name = "../" + string(argv[1]) + "/" + string(argv[1]);
 	cout<<name<<endl;
 	spef.open(name + ".spef");
@@ -757,23 +761,52 @@ int main(int argc, char *argv[]) {
 	early_lib.open(name + "_Early.lib");
 	late_lib.open(name + "_Late.lib");
 	G.build(vlog, spef, early_lib, late_lib);
-	
-	string cmds[] = {"report_at ", "report_rat ", "report_slack "};
-	string nonesense = "-pin ";
-	string modes[] = {"-early ", "-late "};
-	string types[] = {"-rise ", "-fall "};
-	
 	ofstream fout;
 	fout.open(name + ".ops");
-	for (auto &nd : G.nodes) {
-		for (auto &cmd : cmds) {
-			for (auto &mode : modes) {
-				for (auto type : types) {
-					fout<<cmd<<nonesense<<nd.name<<" "<<mode<<type<<endl;
+	
+	const int test_CPPR = 1;
+	if (test_CPPR == 0) {
+		string cmds[] = {"report_at ", "report_rat ", "report_slack ", "report_slew "};
+		string nonesense = "-pin ";
+		string modes[] = {"-early ", "-late "};
+		string types[] = {"-rise ", "-fall "};
+		
+		for (auto &nd : G.nodes) {
+			for (auto &cmd : cmds) {
+				for (auto &type : types) {
+					for (auto mode : modes) {
+						fout<<cmd<<nonesense<<nd.name<<" "<<mode<<type<<endl;
+					}
+				}
+			}
+		}
+	} else {
+		string cmd = "report_cppr_credit", p1 = " -pin1 ", p2 = " -pin2 ";
+		string rf1[] = {" ", " -fall1 "}, rf2[] = {" ", " -fall2 "};
+//		string el1[] = {" ", " -late1 "}, el2[] = {" ", " -late2 "};
+		string el[] = {" ", " -late "};
+		vector<string> clks;
+		for (auto &nd : G.nodes) {
+			if (nd.is_clock) {
+				clks.push_back(nd.name);
+			}
+		}
+		
+		for (int i=0; i<(int)clks.size(); i++) {
+			for (int j=0; j<(int)clks.size(); j++) {
+				for (int k1=0; k1<2; k1++) {
+					for (int k2=0; k2<2; k2++) {
+						for (int k3=0; k3<2; k3++) {
+//							for (int k4=0; k4<2; k4++) {
+								fout<<cmd<<p1<<clks[i]<<p2<<clks[j]<<rf1[k1]<<rf2[k2]<<el[k3]<<endl;
+//							}
+						}
+					}
 				}
 			}
 		}
 	}
+	
 	fout.close();
 
 	Logger::create()->~Logger();
